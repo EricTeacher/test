@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>阿志的低碳生活 - 綠色冒險遊戲</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        forest: {
+                            50: '#f2f7f4',
+                            100: '#e1ede6',
+                            200: '#c5dbcf',
+                            300: '#9ec1ab',
+                            400: '#719e80',
+                            500: '#4a7c59',
+                            600: '#3b6346',
+                            700: '#2f4f38',
+                            900: '#1c3022',
+                        },
+                        earth: {
+                            50: '#fdfbf7',
+                            100: '#f5ebe0',
+                            200: '#e3d5ca',
+                            500: '#d5bdaf',
+                            700: '#8c6a5c',
+                        }
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-6px)' },
+                        },
+                        pop: {
+                            '0%': { transform: 'scale(0.95)', opacity: '0' },
+                            '100%': { transform: 'scale(1)', opacity: '1' },
+                        },
+                        leafFall: {
+                            '0%': { transform: 'translateY(-20px) rotate(0deg)', opacity: '1' },
+                            '100%': { transform: 'translateY(250px) rotate(360deg)', opacity: '0' }
+                        }
+                    },
+                    animation: {
+                        float: 'float 3s ease-in-out infinite',
+                        pop: 'pop 0.3s ease-out forwards',
+                        leafFall: 'leafFall 1.5s linear forwards'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f2f7f4;
+        }
+        .backpack-glow {
+            animation: backpackPulse 1.5s infinite;
+        }
+        @keyframes backpackPulse {
+            0%, 100% { box-shadow: 0 0 5px rgba(74, 124, 89, 0.4); }
+            50% { box-shadow: 0 0 20px rgba(74, 124, 89, 0.8); border-color: #4a7c59; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between text-gray-800 selection:bg-forest-200">
+
+    <!-- 遊戲頂部導覽列 (狀態儀表板) -->
+    <header class="bg-forest-900 text-white shadow-md sticky top-0 z-40 transition-all duration-300">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <!-- 標題與關卡進度 -->
+            <div class="flex items-center gap-3">
+                <span class="text-2xl animate-float">🌱</span>
+                <div>
+                    <h1 class="text-lg font-bold tracking-wider">阿志的低碳生活</h1>
+                    <p class="text-xs text-forest-200" id="stage-indicator">第一關：早安！節能居家大搜索</p>
+                </div>
+            </div>
+
+            <!-- 數據看板 -->
+            <div class="flex items-center gap-4">
+                <!-- 綠能點數 -->
+                <div class="bg-forest-800 px-4 py-1.5 rounded-full border border-forest-600 flex items-center gap-2 shadow-inner">
+                    <span class="text-lg">⭐</span>
+                    <div>
+                        <div class="text-[10px] text-forest-300 uppercase font-bold leading-none">綠能點數</div>
+                        <div class="text-sm font-black text-yellow-300 transition-all" id="green-points-val">0</div>
+                    </div>
+                </div>
+
+                <!-- 碳足跡 -->
+                <div class="bg-red-950/50 px-4 py-1.5 rounded-full border border-red-800 flex items-center gap-2 shadow-inner">
+                    <span class="text-lg">👣</span>
+                    <div>
+                        <div class="text-[10px] text-red-300 uppercase font-bold leading-none">今日碳足跡</div>
+                        <div class="text-sm font-black text-red-400" id="carbon-val">100 kg</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 全局進度條 -->
+        <div class="w-full bg-forest-800 h-1.5 overflow-hidden">
+            <div id="global-progress" class="bg-gradient-to-r from-emerald-400 to-green-500 h-full transition-all duration-500" style="width: 20%;"></div>
+        </div>
+    </header>
+
+    <!-- 主遊戲畫面 -->
+    <main class="max-w-6xl w-full mx-auto px-4 py-6 flex-1 grid grid-cols-1 lg:grid-cols-4 gap-6 items-start relative">
+        
+        <!-- 左側/中央：遊戲關卡主戰場 (佔 3 欄) -->
+        <section class="lg:col-span-3 bg-white rounded-3xl shadow-xl border border-forest-100 overflow-hidden flex flex-col min-h-[580px] relative">
+            
+            <!-- 關卡標題與情境說明 -->
+            <div class="bg-forest-50 p-6 border-b border-forest-100 relative">
+                <!-- 特效發散容器 -->
+                <div id="effect-overlay" class="absolute inset-0 pointer-events-none overflow-hidden z-10"></div>
+                
+                <span id="badge-stage" class="bg-forest-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">STAGE 1</span>
+                <h2 id="stage-title" class="text-xl font-bold text-forest-900 mt-2">早安！節能居家大搜索</h2>
+                <p id="stage-desc" class="text-sm text-gray-600 mt-1">阿志在房間醒來，準備開始新的一天。快幫他在家裡找出能節省能源並減少碳足跡的關鍵行動吧！</p>
+            </div>
+
+            <!-- 任務互動區域 -->
+            <div id="game-arena" class="p-6 flex-1 flex flex-col justify-center items-center min-h-[380px] bg-gradient-to-b from-white to-forest-50/20">
+                <!-- 動態注入的關卡內容 -->
+            </div>
+
+            <!-- 浮動訊息提示框 (代替 Alert) -->
+            <div id="toast-message" class="absolute bottom-16 left-1/2 -translate-x-1/2 bg-forest-900 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 transform scale-0 transition-all duration-300 opacity-0 z-50">
+                <span id="toast-icon">💡</span>
+                <span id="toast-text" class="text-sm font-medium"></span>
+            </div>
+
+            <!-- 關卡底部操作按鈕 -->
+            <div class="bg-gray-50 px-6 py-4 border-t border-gray-100 flex justify-between items-center">
+                <div class="text-xs text-gray-400 font-medium" id="stage-progress-txt">任務進度：0 / 3</div>
+                <button id="btn-next-stage" onclick="nextStage()" disabled class="bg-gray-300 text-gray-500 cursor-not-allowed font-bold px-6 py-2.5 rounded-full transition-all flex items-center gap-2 shadow-md hover:scale-105 active:scale-95 duration-150">
+                    <span id="btn-next-text">下一個任務</span>
+                    <span>➔</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- 右側：阿志的綠色裝備包 (佔 1 欄) -->
+        <aside id="backpack-sidebar" class="bg-white rounded-3xl shadow-xl border border-forest-100 p-6 flex flex-col gap-6 lg:sticky lg:top-24 transition-all duration-300">
+            <div>
+                <h3 class="text-lg font-black text-forest-900 flex items-center gap-2">
+                    <span>🎒</span> 阿志的環保背包
+                </h3>
+                <p class="text-xs text-gray-500 mt-1">當任務提示需要裝備時，點擊對應格子即可使用！</p>
+            </div>
+
+            <!-- 背包格子 -->
+            <div class="grid grid-cols-2 gap-4" id="backpack-grid">
+                <!-- 裝備 1: 隨身購物袋 -->
+                <button onclick="useBackpackItem('toteBag')" id="item-toteBag" class="group relative bg-gray-50 hover:bg-forest-50 p-3 rounded-2xl border-2 border-dashed border-gray-200 transition-all flex flex-col items-center justify-center text-center gap-1 focus:outline-none">
+                    <span class="text-3xl transition duration-300" id="emoji-toteBag">🛍️</span>
+                    <span class="text-xs font-bold text-gray-700" id="name-toteBag">隨身購物袋</span>
+                    <span class="absolute -top-1.5 -right-1.5 bg-forest-500 text-white text-[9px] px-1.5 py-0.5 rounded-full hidden" id="badge-toteBag">已裝備</span>
+                </button>
+
+                <!-- 裝備 2: 金屬粗吸管 -->
+                <button onclick="useBackpackItem('metalStraw')" id="item-metalStraw" class="group relative bg-gray-50 hover:bg-forest-50 p-3 rounded-2xl border-2 border-dashed border-gray-200 transition-all flex flex-col items-center justify-center text-center gap-1 focus:outline-none">
+                    <span class="text-3xl transition duration-300" id="emoji-metalStraw">🥤</span>
+                    <span class="text-xs font-bold text-gray-700" id="name-metalStraw">金屬粗吸管</span>
+                    <span class="absolute -top-1.5 -right-1.5 bg-forest-500 text-white text-[9px] px-1.5 py-0.5 rounded-full hidden" id="badge-metalStraw">已裝備</span>
+                </button>
+
+                <!-- 裝備 3: 布製飲料提袋 -->
+                <button onclick="useBackpackItem('clothHolder')" id="item-clothHolder" class="group relative bg-gray-50 hover:bg-forest-50 p-3 rounded-2xl border-2 border-dashed border-gray-200 transition-all flex flex-col items-center justify-center text-center gap-1 focus:outline-none">
+                    <span class="text-3xl transition duration-300" id="emoji-clothHolder">👜</span>
+                    <span class="text-xs font-bold text-gray-700" id="name-clothHolder">飲料提袋</span>
+                    <span class="absolute -top-1.5 -right-1.5 bg-forest-500 text-white text-[9px] px-1.5 py-0.5 rounded-full hidden" id="badge-clothHolder">已裝備</span>
+                </button>
+
+                <!-- 裝備 4: 環保餐具 -->
+                <button onclick="useBackpackItem('ecoChopsticks')" id="item-ecoChopsticks" class="group relative bg-gray-50 hover:bg-forest-50 p-3 rounded-2xl border-2 border-dashed border-gray-200 transition-all flex flex-col items-center justify-center text-center gap-1 focus:outline-none">
+                    <span class="text-3xl transition duration-300" id="emoji-ecoChopsticks">🥢</span>
+                    <span class="text-xs font-bold text-gray-700" id="name-ecoChopsticks">自備環保筷</span>
+                    <span class="absolute -top-1.5 -right-1.5 bg-forest-500 text-white text-[9px] px-1.5 py-0.5 rounded-full hidden" id="badge-ecoChopsticks">已裝備</span>
+                </button>
+            </div>
+
+            <!-- 背包小提示 -->
+            <div class="bg-forest-50 rounded-2xl p-4 border border-forest-100">
+                <div class="flex gap-2 items-start">
+                    <span class="text-base text-forest-600">💡</span>
+                    <p class="text-xs text-forest-700 leading-relaxed" id="backpack-hint">
+                        背包內的裝備都是減塑利器。在面臨塑膠包裝或一次性餐具的抉擇時，記得點擊它們進行環保作戰！
+                    </p>
+                </div>
+            </div>
+        </aside>
+
+    </main>
+
+    <!-- 頁尾 -->
+    <footer class="bg-forest-900 text-forest-200/60 text-center py-4 text-xs border-t border-forest-800">
+        <p>© 2026 阿志的低碳生活 冒險計畫. 一同守護綠色地球.</p>
+    </footer>
+
+    <!-- 全局互動音效控制 (Web Audio API) -->
+    <script>
+        // 音效合成器
+        let audioCtx;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+        
+        function playSound(type) {
+            try {
+                initAudio();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'success') {
+                    // 愉快的和弦
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                    osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+                    osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2); // G5
+                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.4);
+                } else if (type === 'error') {
+                    // 低沉阻礙聲
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                    osc.frequency.linearRampToValueAtTime(80, audioCtx.currentTime + 0.2);
+                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.3);
+                } else if (type === 'equip') {
+                    // 輕脆裝備聲
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+                    osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.08);
+                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.2);
+                } else if (type === 'clear') {
+                    // 通關大和弦
+                    const frequencies = [261.63, 329.63, 392.00, 523.25]; // C4, E4, G4, C5
+                    frequencies.forEach((f, i) => {
+                        const o = audioCtx.createOscillator();
+                        const g = audioCtx.createGain();
+                        o.connect(g);
+                        g.connect(audioCtx.destination);
+                        o.type = 'sine';
+                        o.frequency.setValueAtTime(f, audioCtx.currentTime + i * 0.08);
+                        g.gain.setValueAtTime(0.1, audioCtx.currentTime + i * 0.08);
+                        g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
+                        o.start();
+                        o.stop(audioCtx.currentTime + 0.7);
+                    });
+                }
+            } catch (e) {
+                console.log('Audio Context error:', e);
+            }
+        }
+    </script>
+
+    <!-- 遊戲邏輯 JS -->
+    <script>
+        // 遊戲核心狀態
+        let greenPoints = 0;
+        let carbonFootprint = 100; // 起始 100 kg
+        let currentStage = 1;
+        let stageProgress = 0;
+        let totalStageTasks = 3;
+
+        // 背包狀態
+        const backpackState = {
+            toteBag: { active: false, pulse: false },
+            metalStraw: { active: false, pulse: false },
+            clothHolder: { active: false, pulse: false },
+            ecoChopsticks: { active: false, pulse: false }
+        };
+
+        // 目前需要背包裝備的交互種類 (用來判定點擊背包時是否符合情境)
+        let activeBackpackTrigger = null; 
+
+        // 關卡狀態追蹤
+        const stageData = {
+            1: {
+                title: "早安！節能居家大搜索",
+                desc: "阿志在房間醒來，準備開始新的一天。快幫他在家裡找出能節省能源並減少碳足跡的關鍵行動吧！",
+                badge: "STAGE 1",
+                tasks: {
+                    newsletter: false,
+                    led: false,
+                    fridge: false
+                },
+                total: 3
+            },
+            2: {
+                title: "超級市場的「標籤獵人」",
+                desc: "阿志前往超市採買晚餐食材與生活用品。請在時間與選擇限制內，選出對地球環境最友善的商品！",
+                badge: "STAGE 2",
+                tasks: {
+                    localFood: false,
+                    carbonLabel: false,
+                    toteBagUse: false
+                },
+                total: 3
+            },
+            3: {
+                title: "午餐時間的「減塑裝備包」",
+                desc: "阿志與朋友在外用餐，並想喝一杯珍珠奶茶。今天我們挑戰完全不使用任何「拋棄式塑膠」！",
+                badge: "STAGE 3",
+                tasks: {
+                    vegetarian: false,
+                    strawAndHolder: false, // 需要金屬粗吸管 + 飲料提袋
+                    chopsticks: false
+                },
+                total: 3
+            },
+            4: {
+                title: "資源回收站的「數字密碼」",
+                desc: "阿志帶著家中的垃圾來到社區回收區。請精確執行資源分類，落實「維修舊物、減少丟棄」的原則！",
+                badge: "STAGE 4",
+                tasks: {
+                    sortingChallenge: false, // 需分類五個物品
+                    plasticCodes: false, // 回收編號1-7辨識
+                    repairBag: false
+                },
+                total: 3
+            },
+            5: {
+                title: "綠色交通與永續願景",
+                desc: "阿志需要前往市中心參加環保公益講座。請選擇最環保的出行方式，並發揮您的公民影響力！",
+                badge: "STAGE 5",
+                tasks: {
+                    transport: false,
+                    knowledgeShare: false,
+                    supervision: false
+                },
+                total: 3
+            }
+        };
+
+        // 啟動遊戲
+        window.addEventListener('load', () => {
+            updateDashboard();
+            loadStage(1);
+        });
+
+        // 輔助函式：顯示浮動 Toast 提示
+        function showToast(text, icon = '💡') {
+            const toast = document.getElementById('toast-message');
+            const tText = document.getElementById('toast-text');
+            const tIcon = document.getElementById('toast-icon');
+            
+            tText.textContent = text;
+            tIcon.textContent = icon;
+            
+            toast.className = "absolute bottom-16 left-1/2 -translate-x-1/2 bg-forest-900 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 transform scale-100 transition-all duration-300 opacity-100 z-50";
+            
+            setTimeout(() => {
+                toast.className = "absolute bottom-16 left-1/2 -translate-x-1/2 bg-forest-900 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 transform scale-0 transition-all duration-300 opacity-0 z-50";
+            }, 3000);
+        }
+
+        // 輔助函式：發射綠能特效 (樹葉或星光飄落)
+        function spawnGreenEffects() {
+            const container = document.getElementById('effect-overlay');
+            if (!container) return;
+            for (let i = 0; i < 15; i++) {
+                const leaf = document.createElement('div');
+                leaf.className = "absolute text-emerald-500 text-xl pointer-events-none animate-leafFall";
+                leaf.innerHTML = ["🍃", "🌱", "✨", "💚"][Math.floor(Math.random() * 4)];
+                leaf.style.left = `${Math.random() * 100}%`;
+                leaf.style.top = `-20px`;
+                leaf.style.animationDelay = `${Math.random() * 0.5}s`;
+                leaf.style.animationDuration = `${1 + Math.random() * 1.5}s`;
+                container.appendChild(leaf);
+                setTimeout(() => leaf.remove(), 2000);
+            }
+        }
+
+        // 更新頂部儀表板
+        function updateDashboard() {
+            document.getElementById('green-points-val').textContent = greenPoints;
+            document.getElementById('carbon-val').textContent = `${carbonFootprint.toFixed(1)} kg`;
+            const progressPercent = (currentStage / 5) * 100;
+            document.getElementById('global-progress').style.width = `${progressPercent}%`;
+        }
+
+        // 修改綠能與碳足跡數值
+        function addReward(points, carbonReduce) {
+            greenPoints += points;
+            carbonFootprint = Math.max(0, carbonFootprint - carbonReduce);
+            updateDashboard();
+            spawnGreenEffects();
+            playSound('success');
+        }
+
+        // 設定背包提示高亮 (當需要玩家使用時)
+        function setBackpackPulse(itemKey, actionName) {
+            activeBackpackTrigger = { itemKey, actionName };
+            // 清理其他格子的特別高亮
+            Object.keys(backpackState).forEach(key => {
+                const element = document.getElementById(`item-${key}`);
+                element.classList.remove('backpack-glow');
+            });
+            // 為特定道具加上呼吸發光特效
+            const targetEl = document.getElementById(`item-${itemKey}`);
+            if (targetEl) {
+                targetEl.classList.add('backpack-glow');
+                showToast("提示：需要使用背包中的環保裝備喔！快點擊亮起的格子！", "🎒");
+            }
+        }
+
+        // 取消高亮
+        function clearBackpackPulse() {
+            activeBackpackTrigger = null;
+            Object.keys(backpackState).forEach(key => {
+                const element = document.getElementById(`item-${key}`);
+                if (element) {
+                    element.classList.remove('backpack-glow');
+                }
+            });
+        }
+
+        // 點擊背包內裝備的邏輯
+        function useBackpackItem(itemKey) {
+            initAudio();
+            playSound('equip');
+            
+            // 檢查當前關卡是否正在等待使用該裝備
+            if (activeBackpackTrigger && activeBackpackTrigger.itemKey === itemKey) {
+                const action = activeBackpackTrigger.actionName;
+                clearBackpackPulse();
+                
+                // 標記該道具為已裝備/使用狀態
+                document.getElementById(`badge-${itemKey}`).classList.remove('hidden');
+                document.getElementById(`item-${itemKey}`).classList.add('bg-forest-100', 'border-forest-500');
+                
+                // 執行特定觸發邏輯
+                if (action === 'stage2-tote') {
+                    handleStage2ToteSuccess();
+                } else if (action === 'stage3-straw') {
+                    handleStage3StrawSuccess();
+                } else if (action === 'stage3-holder') {
+                    handleStage3HolderSuccess();
+                } else if (action === 'stage3-chopsticks') {
+                    handleStage3ChopsticksSuccess();
+                }
+            } else {
+                // 如果是純粹點擊查看，給予說明提示
+                let desc = "";
+                if (itemKey === 'toteBag') desc = "【隨身購物袋】可以用於超市採買，避免索取一次性塑膠袋。";
+                if (itemKey === 'metalStraw') desc = "【金屬粗吸管】吸食珍奶等粗配料的完美選擇，拒絕塑膠吸管。";
+                if (itemKey === 'clothHolder') desc = "【飲料提袋】環保輕便，讓你出外買飲料不用買塑膠提袋。";
+                if (itemKey === 'ecoChopsticks') desc = "【自備環保筷】出外用餐自備餐具，防範免洗筷中的化學殘留與資源浪費。";
+                showToast(desc, "🎒");
+            }
+        }
+
+        // 載入指定關卡
+        function loadStage(stageNum) {
+            currentStage = stageNum;
+            stageProgress = 0;
+            clearBackpackPulse();
+            
+            const info = stageData[stageNum];
+            document.getElementById('stage-indicator').textContent = `${info.badge}：${info.title}`;
+            document.getElementById('badge-stage').textContent = info.badge;
+            document.getElementById('stage-title').textContent = info.title;
+            document.getElementById('stage-desc').textContent = info.desc;
+            
+            const btnNext = document.getElementById('btn-next-stage');
+            btnNext.disabled = true;
+            btnNext.className = "bg-gray-300 text-gray-500 cursor-not-allowed font-bold px-6 py-2.5 rounded-full transition-all flex items-center gap-2 shadow-md";
+            
+            if (stageNum === 5) {
+                document.getElementById('btn-next-text').textContent = "結算本日碳足跡";
+            } else {
+                document.getElementById('btn-next-text').textContent = "下一個任務";
+            }
+
+            updateStageProgressTxt();
+            renderStageContent(stageNum);
+        }
+
+        function updateStageProgressTxt() {
+            const info = stageData[currentStage];
+            document.getElementById('stage-progress-txt').textContent = `任務進度：${stageProgress} / ${info.total}`;
+            
+            if (stageProgress >= info.total) {
+                const btnNext = document.getElementById('btn-next-stage');
+                btnNext.disabled = false;
+                btnNext.className = "bg-gradient-to-r from-emerald-500 to-forest-600 text-white font-bold px-6 py-2.5 rounded-full hover:shadow-lg transition-all flex items-center gap-2 hover:scale-105 active:scale-95 duration-150";
+                playSound('clear');
+                showToast("太棒了！本關卡任務全數達成！可以進入下一關了！", "🎉");
+            }
+        }
+
+        function completeTask() {
+            stageProgress++;
+            updateStageProgressTxt();
+        }
+
+        // 下一關卡按鈕觸發
+        function nextStage() {
+            if (currentStage < 5) {
+                loadStage(currentStage + 1);
+            } else {
+                showFinalResults();
+            }
+        }
+
+        // 渲染各關卡自定義的 DOM 內容
+        function renderStageContent(stageNum) {
+            const arena = document.getElementById('game-arena');
+            arena.innerHTML = ''; // 清空先前畫面
+            
+            switch (stageNum) {
+                case 1:
+                    renderStage1(arena);
+                    break;
+                case 2:
+                    renderStage2(arena);
+                    break;
+                case 3:
+                    renderStage3(arena);
+                    break;
+                case 4:
+                    renderStage4(arena);
+                    break;
+                case 5:
+                    renderStage5(arena);
+                    break;
+            }
+        }
+
+        /* ==========================================
+           第一關：早安！節能居家大搜索 實作
+           ========================================== */
+        function renderStage1(container) {
+            container.className = "p-6 flex-1 w-full grid grid-cols-1 md:grid-cols-3 gap-6 items-center justify-center";
+            
+            // 任務狀態
+            const state = { newsletter: false, led: false, fridge: false };
+
+            // 1. 數位減碳 (電腦)
+            const pcCard = document.createElement('div');
+            pcCard.className = "bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center text-center gap-3 transition-all hover:shadow-md";
+            pcCard.innerHTML = `
+                <div class="text-5xl my-2">💻</div>
+                <h4 class="font-bold text-gray-800 text-base">阿志的個人電腦</h4>
+                <p class="text-xs text-gray-500 leading-snug">信箱裡塞滿了很久不看的推銷廣告信件。</p>
+                <div id="pc-action-area" class="w-full mt-2">
+                    <button id="btn-pc" class="w-full bg-forest-500 hover:bg-forest-600 text-white text-xs font-bold py-2 px-3 rounded-xl transition shadow">
+                        點擊電腦清理信箱
+                    </button>
+                </div>
+            `;
+            container.appendChild(pcCard);
+
+            document.getElementById('btn-pc').addEventListener('click', () => {
+                const actionArea = document.getElementById('pc-action-area');
+                actionArea.innerHTML = `
+                    <div class="text-xs text-left bg-gray-50 p-2.5 rounded-lg border border-gray-150 flex flex-col gap-2">
+                        <p class="font-bold text-forest-700">選擇清理方式：</p>
+                        <button onclick="choosePCAction(true)" class="w-full text-left bg-emerald-50 hover:bg-emerald-100 p-1.5 rounded text-[11px] font-medium text-emerald-800 border border-emerald-200">
+                            ✉️ 退訂不需要的電子報 (減碳!)
+                        </button>
+                        <button onclick="choosePCAction(false)" class="w-full text-left bg-red-50 hover:bg-red-100 p-1.5 rounded text-[11px] font-medium text-red-800 border border-red-200">
+                            🗑️ 直接全部刪除，不退訂 (暫時)
+                        </button>
+                    </div>
+                `;
+            });
+
+            window.choosePCAction = (isEco) => {
+                const actionArea = document.getElementById('pc-action-area');
+                if (isEco) {
+                    actionArea.innerHTML = `<span class="text-xs font-bold text-emerald-600 flex items-center justify-center gap-1">✔️ 已退訂! 減少數位存儲碳排</span>`;
+                    addReward(15, 5.0);
+                    state.newsletter = true;
+                    completeTask();
+                } else {
+                    playSound('error');
+                    showToast("單純刪除依然會收到新信，建議選擇源頭『退訂』才能一勞永逸喔！", "💡");
+                }
+            };
+
+            // 2. 居家升級 (舊式燈泡)
+            const lampCard = document.createElement('div');
+            lampCard.className = "bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center text-center gap-3 transition-all hover:shadow-md";
+            lampCard.innerHTML = `
+                <div id="lamp-emoji" class="text-5xl my-2">💡</div>
+                <h4 class="font-bold text-gray-800 text-base">舊式鎢絲燈檯燈</h4>
+                <p class="text-xs text-gray-500 leading-snug">這盞舊檯燈發熱嚴重，耗電量也是 LED 的數倍。</p>
+                <button id="btn-lamp" class="w-full mt-2 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-bold py-2 px-3 rounded-xl transition shadow">
+                    動手替換為 LED 燈具
+                </button>
+            `;
+            container.appendChild(lampCard);
+
+            document.getElementById('btn-lamp').addEventListener('click', () => {
+                const emoji = document.getElementById('lamp-emoji');
+                const btn = document.getElementById('btn-lamp');
+                emoji.textContent = '🌟';
+                btn.disabled = true;
+                btn.className = "w-full mt-2 bg-gray-100 text-emerald-600 text-xs font-bold py-2 px-3 rounded-xl cursor-default flex items-center justify-center gap-1";
+                btn.innerHTML = `<span>✔️ 已更換高效率 LED 燈泡!</span>`;
+                addReward(15, 8.0);
+                state.led = true;
+                completeTask();
+            });
+
+            // 3. 冰箱檢查
+            const fridgeCard = document.createElement('div');
+            fridgeCard.className = "bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center text-center gap-3 transition-all hover:shadow-md";
+            fridgeCard.innerHTML = `
+                <div class="text-5xl my-2">❄️</div>
+                <h4 class="font-bold text-gray-800 text-base">家中的大冰箱</h4>
+                <p class="text-xs text-gray-500 leading-snug">冰箱塞得太滿了，冷氣無法循環，耗電飆增！</p>
+                <div id="fridge-action-area" class="w-full mt-2">
+                    <button id="btn-fridge" class="w-full bg-forest-500 hover:bg-forest-600 text-white text-xs font-bold py-2 px-3 rounded-xl transition shadow">
+                        打開冰箱進行整理
+                    </button>
+                </div>
+            `;
+            container.appendChild(fridgeCard);
+
+            document.getElementById('btn-fridge').addEventListener('click', () => {
+                const actionArea = document.getElementById('fridge-action-area');
+                actionArea.innerHTML = `
+                    <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 text-left">
+                        <div class="text-[10px] font-bold text-blue-700 uppercase mb-2">冰箱收納（移除不必要的過期食材）</div>
+                        <div class="grid grid-cols-3 gap-2" id="fridge-grid">
+                            <button onclick="removeFridgeItem(this)" class="bg-white border p-1 rounded hover:bg-red-50 text-[10px] flex flex-col items-center">
+                                <span>🥫</span><span>過期罐頭</span>
+                            </button>
+                            <button onclick="removeFridgeItem(this)" class="bg-white border p-1 rounded hover:bg-red-50 text-[10px] flex flex-col items-center">
+                                <span>🥩</span><span>囤積凍肉</span>
+                            </button>
+                            <button onclick="removeFridgeItem(this)" class="bg-white border p-1 rounded hover:bg-red-50 text-[10px] flex flex-col items-center">
+                                <span>🥛</span><span>過期鮮乳</span>
+                            </button>
+                        </div>
+                        <div class="mt-2 text-[10px] text-gray-600 font-medium text-center" id="fridge-status">目前容量：10 分滿 (擁擠)</div>
+                    </div>
+                `;
+            });
+
+            let removedCount = 0;
+            window.removeFridgeItem = (btn) => {
+                btn.remove();
+                removedCount++;
+                const status = document.getElementById('fridge-status');
+                if (removedCount === 1) {
+                    status.textContent = "目前容量：9 分滿 (稍擠)";
+                } else if (removedCount === 2) {
+                    status.textContent = "目前容量：8 分滿 (黃金完美比例！)";
+                    status.className = "mt-2 text-[10px] text-emerald-600 font-bold text-center";
+                    const actionArea = document.getElementById('fridge-action-area');
+                    setTimeout(() => {
+                        actionArea.innerHTML = `<span class="text-xs font-bold text-emerald-600 flex items-center justify-center gap-1">✔️ 已維持 8 分滿！冷氣順暢節能</span>`;
+                        addReward(15, 6.0);
+                        state.fridge = true;
+                        completeTask();
+                    }, 800);
+                }
+            };
+        }
+
+
+        /* ==========================================
+           第二關：超級市場的「標籤獵人」 實作
+           ========================================== */
+        let hasUsedToteBag = false; // 追蹤背包隨身購物袋使用
+
+        function renderStage2(container) {
+            container.className = "p-6 flex-1 w-full flex flex-col md:flex-row gap-6 items-stretch justify-center";
+
+            // 1. 在地優先
+            const foodCard = document.createElement('div');
+            foodCard.className = "bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex-1 flex flex-col justify-between items-center text-center gap-3 transition-all hover:shadow-md";
+            foodCard.innerHTML = `
+                <div>
+                    <div class="text-5xl my-2">🛒</div>
+                    <h4 class="font-bold text-gray-800 text-base">食材大抉擇</h4>
+                    <p class="text-xs text-gray-500 leading-snug mt-1">今晚阿志打算準備晚餐，該選哪一種食材更能縮短運輸里程呢？</p>
+                </div>
+                <div class="w-full flex flex-col gap-2 mt-2" id="food-choice-box">
+                    <button onclick="chooseFood(false)" class="w-full bg-red-50 hover:bg-red-100 border border-red-200 text-red-800 text-xs py-2 px-3 rounded-xl transition font-medium">
+                        🥩 美國進口無骨牛肉 (高里程)
+                    </button>
+                    <button onclick="chooseFood(true)" class="w-full bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 text-xs py-2 px-3 rounded-xl transition font-medium">
+                        🥦 本地當季有機時蔬 (縮短里程)
+                    </button>
+                </div>
+            `;
+            container.appendChild(foodCard);
+
+            window.chooseFood = (isEco) => {
+                const box = document.getElementById('food-choice-box');
+                if (isEco) {
+                    box.innerHTML = `<span class="text-xs font-bold text-emerald-600">✔️ 已選擇在地當季時蔬！大降碳排</span>`;
+                    addReward(20, 12.0);
+                    completeTask();
+                } else {
+                    playSound('error');
+                    showToast("牛肉的畜牧碳排極高，再加上跨洋空運，碳足跡非常驚人！再試一次！", "💡");
+                }
+            };
+
+            // 2. 認明標章
+            const labelCard = document.createElement('div');
+            labelCard.className = "bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex-1 flex flex-col justify-between items-center text-center gap-3 transition-all hover:shadow-md";
+            labelCard.innerHTML = `
+                <div>
+                    <div class="text-5xl my-2">🏷️</div>
+                    <h4 class="font-bold text-gray-800 text-base">尋找環保認證標章</h4>
+                    <p class="text-xs text-gray-500 leading-snug mt-1">架上有兩罐洗潔精，哪一罐標示了永續友善標章呢？</p>
+                </div>
+                <div class="w-full grid grid-cols-2 gap-2 mt-2" id="label-choice-box">
+                    <button onclick="chooseLabel(false)" class="bg-gray-50 hover:bg-gray-100 border p-2 rounded-xl flex flex-col items-center">
+                        <span class="text-2xl mb-1">🧴</span>
+                        <span class="text-[10px] text-gray-600 font-bold">一般化學清潔劑</span>
+                        <span class="text-[8px] text-red-500 font-medium">無認證</span>
+                    </button>
+                    <button onclick="chooseLabel(true)" class="bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 p-2 rounded-xl flex flex-col items-center">
+                        <span class="text-2xl mb-1">👣</span>
+                        <span class="text-[10px] text-emerald-800 font-bold">綠色碳足跡洗潔精</span>
+                        <span class="text-[8px] bg-emerald-500 text-white px-1 rounded-full mt-0.5">碳足跡/MIT標籤</span>
+                    </button>
+                </div>
+            `;
+            container.appendChild(labelCard);
+
+            window.chooseLabel = (isEco) => {
+                const box = document.getElementById('label-choice-box');
+                if (isEco) {
+                    box.innerHTML = `<span class="text-xs font-bold text-emerald-600">✔️ 認明碳足跡標籤與MIT，選對好商品！</span>`;
+                    addReward(20, 5.0);
+                    completeTask();
+                } else {
+                    playSound('error');
+                    showToast("沒有綠色標誌的產品，可能含有危害環境的化學成分。請選擇帶有碳足跡或MIT的商品！", "💡");
+                }
+            };
+
+            // 3. 裸裝任務 (需要點擊背包購物袋)
+            const bagCard = document.createElement('div');
+            bagCard.className = "bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex-1 flex flex-col justify-between items-center text-center gap-3 transition-all hover:shadow-md";
+            bagCard.innerHTML = `
+                <div>
+                    <div class="text-5xl my-2">🍏</div>
+                    <h4 class="font-bold text-gray-800 text-base">挑戰不拿額外塑膠袋</h4>
+                    <p class="text-xs text-gray-500 leading-snug mt-1">結帳時，收銀員問：「需要加購 2 元的塑膠袋嗎？還是您有自備購物提袋？」</p>
+                </div>
+                <div class="w-full mt-2" id="bag-action-box">
+                    <p class="text-xs text-yellow-600 font-bold mb-2 animate-bounce">⚠️ 請從右側「阿志的環保背包」中找出並使用適當的裝備！</p>
+                    <div class="bg-gray-50 p-2.5 rounded-lg border text-xs text-gray-500">
+                        等待背包裝備互動中...
+                    </div>
+                </div>
+            `;
+            container.appendChild(bagCard);
+
+            // 啟用背包中「隨身購物袋」的呼吸提示
+            setBackpackPulse('toteBag', 'stage2-tote');
+        }
+
+        // 背包購物袋使用成功的回呼
+        function handleStage2ToteSuccess() {
+            const box = document.getElementById('bag-action-box');
+            if (box) {
+                box.innerHTML = `<div class="text-xs font-bold text-emerald-600 bg-emerald-50 p-3 rounded-xl border border-emerald-200">
+                    ✔️ 太棒了！你秀出了【隨身購物袋 (Tote bag)】，店員幫你把散裝蔬果整齊裝入，成功拒絕一次性塑膠袋！
+                </div>`;
+                addReward(25, 10.0);
+                completeTask();
+            }
+        }
+
+
+        /* ==========================================
+           第三關：午餐時間的「減塑裝備包」 實作
+           ========================================== */
+        function renderStage3(container) {
+            container.className = "p-6 flex-1 w-full flex flex-col md:flex-row gap-6 items-stretch justify-center";
+
+            // 1. 蔬食加成
+            const vegCard = document.createElement('div');
+            vegCard.className = "bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex-1 flex flex-col justify-between items-center text-center gap-3 transition-all hover:shadow-md";
+            vegCard.innerHTML = `
+                <div>
+                    <div class="text-5xl my-2">🍜</div>
+                    <h4 class="font-bold text-gray-800 text-base">午餐菜單選擇</h4>
+                    <p class="text-xs text-gray-500 leading-snug mt-1">減少肉類攝取可大幅降低佔全球 18% 的溫室氣體排放。阿志午餐想點...</p>
+                </div>
+                <div class="w-full flex flex-col gap-2 mt-2" id="veg-action-box">
+                    <button onclick="chooseLunch(false)" class="w-full bg-red-50 hover:bg-red-100 border border-red-200 text-red-800 text-xs py-2 px-3 rounded-xl transition font-medium">
+                        🍔 雙份牛肉漢堡套餐 (高排碳)
+                    </button>
+                    <button onclick="chooseLunch(true)" class="w-full bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 text-xs py-2 px-3 rounded-xl transition font-medium">
+                        🥗 Go Vegetarian! 鮮菇蔬食湯麵 (極低碳)
+                    </button>
+                </div>
+            `;
+            container.appendChild(vegCard);
+
+            window.chooseLunch = (isEco) => {
+                const box = document.getElementById('veg-action-box');
+                if (isEco) {
+                    box.innerHTML = `<span class="text-xs font-bold text-emerald-600">✔️ 選擇健康美味的低碳蔬食，太讚了！</span>`;
+                    addReward(20, 15.0);
+                    completeTask();
+                } else {
+                    playSound('error');
+                    showToast("牛肉漢堡生產過程排碳驚人，試試蔬食能大幅減輕地球壓力喔！", "💡");
+                }
+            };
+
+            // 2. 珍奶雙重裝備挑戰 (粗吸管 + 飲料提袋)
+            const bubbleCard = document.createElement('div');
+            bubbleCard.className = "bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex-1 flex flex-col justify-between items-center text-center gap-3 transition-all hover:shadow-md";
+            
+            // 此子任務需要兩樣裝備
+            window.stage3EquipState = { straw: false, holder: false };
+
+            bubbleCard.innerHTML = `
+                <div>
+                    <div class="text-5xl my-2">🧋</div>
+                    <h4 class="font-bold text-gray-800 text-base">好想喝杯珍奶！</h4>
+                    <p class="text-xs text-gray-500 leading-snug mt-1">桌上送來一杯冰涼的珍珠奶茶，但店員正要提供塑膠吸管與單杯裝提袋...</p>
+                </div>
+                <div class="w-full mt-2" id="bubble-action-box">
+                    <p class="text-[11px] text-yellow-600 font-bold mb-2 animate-bounce">⚠️ 請連續使用背包裡的裝備：</p>
+                    <div class="flex flex-col gap-2">
+                        <div class="flex items-center justify-between bg-gray-50 px-3 py-1.5 rounded text-xs border" id="chk-straw">
+                            <span>🥤 喝珍珠用粗吸管</span>
+                            <span class="text-red-500 font-bold">未就緒</span>
+                        </div>
+                        <div class="flex items-center justify-between bg-gray-50 px-3 py-1.5 rounded text-xs border" id="chk-holder">
+                            <span>👜 帶走飲料用提袋</span>
+                            <span class="text-red-500 font-bold">未就緒</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(bubbleCard);
+
+            // 依序或同時提示。我們先提示吸管
+            setStage3BackpackPrompt();
+
+            // 3. 自備環保筷
+            const chopstickCard = document.createElement('div');
+            chopstickCard.className = "bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex-1 flex flex-col justify-between items-center text-center gap-3 transition-all hover:shadow-md";
+            chopstickCard.innerHTML = `
+                <div>
+                    <div class="text-5xl my-2">🥢</div>
+                    <h4 class="font-bold text-gray-800 text-base">拒絕一次性免洗筷</h4>
+                    <p class="text-xs text-gray-500 leading-snug mt-1">餐點送上桌，店家餐具架上只有包裝著塑膠套的免洗筷...</p>
+                </div>
+                <div class="w-full mt-2" id="chopstick-action-box">
+                    <p class="text-xs text-yellow-600 font-bold mb-2">⚠️ 需要「餐具」裝備！</p>
+                    <div class="bg-gray-50 p-2 rounded text-xs text-gray-500">
+                        等待背包裝備點擊...
+                    </div>
+                </div>
+            `;
+            container.appendChild(chopstickCard);
+        }
+
+        // 管理第三關背包道具的觸發流向
+        function setStage3BackpackPrompt() {
+            if (!window.stage3EquipState.straw) {
+                setBackpackPulse('metalStraw', 'stage3-straw');
+            } else if (!window.stage3EquipState.holder) {
+                setBackpackPulse('clothHolder', 'stage3-holder');
+            } else if (!stageData[3].tasks.chopsticks) {
+                setBackpackPulse('ecoChopsticks', 'stage3-chopsticks');
+            }
+        }
+
+        function handleStage3StrawSuccess() {
+            window.stage3EquipState.straw = true;
+            const chk = document.getElementById('chk-straw');
+            if (chk) {
+                chk.className = "flex items-center justify-between bg-emerald-50 px-3 py-1.5 rounded text-xs border border-emerald-300 text-emerald-800 font-medium";
+                chk.innerHTML = `<span>🥤 金屬粗吸管已插入</span><span class="font-bold">✔️ 準備就緒</span>`;
+            }
+            checkStage3BubbleCombo();
+        }
+
+        function handleStage3HolderSuccess() {
+            window.stage3EquipState.holder = true;
+            const chk = document.getElementById('chk-holder');
+            if (chk) {
+                chk.className = "flex items-center justify-between bg-emerald-50 px-3 py-1.5 rounded text-xs border border-emerald-300 text-emerald-800 font-medium";
+                chk.innerHTML = `<span>👜 布製飲料提袋已裝入</span><span class="font-bold">✔️ 準備就緒</span>`;
+            }
+            checkStage3BubbleCombo();
+        }
+
+        function checkStage3BubbleCombo() {
+            if (window.stage3EquipState.straw && window.stage3EquipState.holder) {
+                const box = document.getElementById('bubble-action-box');
+                if (box) {
+                    box.innerHTML = `<div class="text-xs font-bold text-emerald-600 bg-emerald-50 p-3 rounded-xl border border-emerald-200">
+                        ✔️ 減塑裝備全開！用金屬粗吸管大口吸珍奶，用布提袋輕鬆帶走！
+                    </div>`;
+                }
+                addReward(25, 8.0);
+                completeTask();
+            }
+            // 繼續設定下一個高亮 (如環保筷或剩餘珍奶)
+            setStage3BackpackPrompt();
+        }
+
+        function handleStage3ChopsticksSuccess() {
+            const box = document.getElementById('chopstick-action-box');
+            if (box) {
+                box.innerHTML = `<div class="text-xs font-bold text-emerald-600 bg-emerald-50 p-3 rounded-xl border border-emerald-200">
+                    ✔️ 使用了【自備環保筷】，拒絕一次性免洗筷與塑膠包裝，吃得安心又綠色！
+                </div>`;
+                addReward(20, 5.0);
+                completeTask();
+                stageData[3].tasks.chopsticks = true;
+            }
+            clearBackpackPulse();
+        }
+
+
+        /* ==========================================
+           第四關：資源回收站的「數字密碼」 實作
+           ========================================== */
+        function renderStage4(container) {
+            container.className = "p-6 flex-1 w-full flex flex-col gap-6 items-center justify-center";
+
+            // 上半部：一對一分類挑戰、1-7塑膠編號
+            const upperBox = document.createElement('div');
+            upperBox.className = "w-full grid grid-cols-1 md:grid-cols-2 gap-6";
+            container.appendChild(upperBox);
+
+            // 1. 垃圾分類配對挑戰
+            const sortCard = document.createElement('div');
+            sortCard.className = "bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col gap-3 transition-all hover:shadow-md";
+            sortCard.innerHTML = `
+                <div>
+                    <h4 class="font-bold text-gray-800 text-base flex items-center gap-1"><span>🔋</span>分類神射手挑戰</h4>
+                    <p class="text-xs text-gray-500 leading-snug">請點選下方一個垃圾，再點選對應的正確回收桶進行投放！</p>
+                </div>
+                <!-- 待分類垃圾 -->
+                <div class="flex gap-2 justify-center my-2" id="trash-pool">
+                    <button onclick="selectTrash('battery', this)" class="bg-gray-50 hover:bg-forest-50 p-2.5 rounded-xl border text-2xl" title="廢舊電池">🔋</button>
+                    <button onclick="selectTrash('paper', this)" class="bg-gray-50 hover:bg-forest-50 p-2.5 rounded-xl border text-2xl" title="舊報紙書本">📰</button>
+                    <button onclick="selectTrash('glass', this)" class="bg-gray-50 hover:bg-forest-50 p-2.5 rounded-xl border text-2xl" title="玻璃啤酒瓶">🍾</button>
+                </div>
+                <!-- 回收桶 -->
+                <div class="grid grid-cols-3 gap-2 text-center" id="bins-grid">
+                    <button onclick="dropTrash('paper')" class="bg-amber-50 hover:bg-amber-100 border border-amber-200 p-2 rounded-xl text-xs font-bold text-amber-800">📦 紙類</button>
+                    <button onclick="dropTrash('glass')" class="bg-blue-50 hover:bg-blue-100 border border-blue-200 p-2 rounded-xl text-xs font-bold text-blue-800">🥛 玻璃瓶</button>
+                    <button onclick="dropTrash('battery')" class="bg-red-50 hover:bg-red-100 border border-red-200 p-2 rounded-xl text-xs font-bold text-red-800">⚡ 廢電池桶</button>
+                </div>
+                <div id="sort-status" class="text-xs text-center font-bold text-forest-600 mt-1">進度：已分類 0/3</div>
+            `;
+            upperBox.appendChild(sortCard);
+
+            let selectedTrashType = null;
+            let selectedTrashBtn = null;
+            let sortedCount = 0;
+
+            window.selectTrash = (type, btn) => {
+                selectedTrashType = type;
+                selectedTrashBtn = btn;
+                // 高亮當前選擇
+                const btns = document.querySelectorAll('#trash-pool button');
+                btns.forEach(b => b.classList.remove('border-forest-500', 'bg-forest-100'));
+                btn.classList.add('border-forest-500', 'bg-forest-100');
+            };
+
+            window.dropTrash = (binType) => {
+                if (!selectedTrashType) {
+                    playSound('error');
+                    showToast("請先點選上面那排的其中一個垃圾，再點回收桶喔！", "💡");
+                    return;
+                }
+                if (selectedTrashType === binType) {
+                    selectedTrashBtn.remove();
+                    selectedTrashType = null;
+                    selectedTrashBtn = null;
+                    sortedCount++;
+                    document.getElementById('sort-status').textContent = `進度：已分類 ${sortedCount}/3`;
+                    playSound('success');
+                    
+                    if (sortedCount === 3) {
+                        const status = document.getElementById('sort-status');
+                        status.textContent = "✔️ 分類神射手完成！所有廢棄物皆正確歸位！";
+                        status.className = "text-xs text-center font-bold text-emerald-600 mt-1";
+                        addReward(20, 8.0);
+                        completeTask();
+                    }
+                } else {
+                    playSound('error');
+                    showToast("哎呀！丟錯回收桶了，這樣會增加後端分類人員的負擔與環境負載喔！", "💡");
+                }
+            };
+
+            // 2. 塑膠回收編號識別
+            const codeCard = document.createElement('div');
+            codeCard.className = "bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between gap-3 transition-all hover:shadow-md";
+            codeCard.innerHTML = `
+                <div>
+                    <h4 class="font-bold text-gray-800 text-base flex items-center gap-1"><span>♻️</span> 塑膠編號辨識挑戰</h4>
+                    <p class="text-xs text-gray-500 leading-snug">阿志手上拿著一個外帶「外帶餐盒 (PP聚丙烯塑膠)」，在塑膠容器底部標有回收編號，該對應丟入哪一類呢？</p>
+                </div>
+                <div class="flex items-center justify-center bg-gray-50 p-3 rounded-2xl border my-1">
+                    <div class="relative w-16 h-16 flex items-center justify-center border-4 border-emerald-600 text-emerald-600 font-black text-2xl rounded-full">
+                        ♻️ <span class="absolute top-4 text-sm font-black">5</span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2" id="code-choices">
+                    <button onclick="chooseCode(false)" class="bg-gray-50 hover:bg-red-50 border p-2 rounded-xl text-xs font-medium text-gray-700">
+                        1號 (PET 寶特瓶)
+                    </button>
+                    <button onclick="chooseCode(true)" class="bg-gray-50 hover:bg-emerald-50 border border-emerald-300 p-2 rounded-xl text-xs font-bold text-emerald-800">
+                        5號 (PP餐盒/水杯，耐高溫)
+                    </button>
+                </div>
+            `;
+            upperBox.appendChild(codeCard);
+
+            window.chooseCode = (isCorrect) => {
+                const choices = document.getElementById('code-choices');
+                if (isCorrect) {
+                    choices.innerHTML = `<div class="col-span-2 text-xs font-bold text-emerald-600 bg-emerald-50 p-3 rounded-xl border border-emerald-200 text-center">
+                        ✔️ 答對了！5號 PP 常用於餐盒，耐熱性高，需單獨分類回收重新造粒！
+                    </div>`;
+                    addReward(20, 6.0);
+                    completeTask();
+                } else {
+                    playSound('error');
+                    showToast("1號主要是寶特瓶，與PP耐熱塑料的熔點與材質不同，不可以混在一塊喔！", "💡");
+                }
+            };
+
+            // 下半部：維修舊物代替丟棄
+            const repairCard = document.createElement('div');
+            repairCard.className = "w-full bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4 transition-all hover:shadow-md";
+            repairCard.innerHTML = `
+                <div class="flex items-center gap-4">
+                    <div class="text-5xl">🎒💔</div>
+                    <div>
+                        <h4 class="font-bold text-gray-800 text-base">壞掉的背包怎麼辦？</h4>
+                        <p class="text-xs text-gray-500 leading-snug mt-1">
+                            阿志平常用的帆布包拉鍊壞了、底部也磨出了一個小破洞。該怎麼處置呢？
+                        </p>
+                    </div>
+                </div>
+                <div class="flex gap-2 w-full md:w-auto shrink-0" id="repair-action-box">
+                    <button onclick="chooseRepair(false)" class="flex-1 md:flex-none bg-red-50 hover:bg-red-100 text-red-800 border border-red-200 text-xs font-bold py-2 px-4 rounded-xl transition">
+                        丟棄買新款
+                    </button>
+                    <button onclick="chooseRepair(true)" class="flex-1 md:flex-none bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-bold py-2 px-4 rounded-xl transition">
+                        維修縫補(舊物再造)
+                    </button>
+                </div>
+            `;
+            container.appendChild(repairCard);
+
+            window.chooseRepair = (isEco) => {
+                const box = document.getElementById('repair-action-box');
+                if (isEco) {
+                    box.innerHTML = `<span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-2 rounded-xl border border-emerald-200">
+                        ✔️ 實踐「壞了才丟、維修舊物」原則，極大化物品壽命！
+                    </span>`;
+                    addReward(20, 12.0);
+                    completeTask();
+                } else {
+                    playSound('error');
+                    showToast("生產一個新的帆布包會產生極高的製造碳排，修補再用才是最酷的低碳時尚！", "💡");
+                }
+            };
+        }
+
+
+        /* ==========================================
+           第五關：綠色交通與永續願景 實作
+           ========================================== */
+        function renderStage5(container) {
+            container.className = "p-6 flex-1 w-full grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch justify-center";
+
+            // 1. 交通抉擇
+            const transportCard = document.createElement('div');
+            transportCard.className = "bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between items-center text-center gap-3 transition-all hover:shadow-md";
+            transportCard.innerHTML = `
+                <div>
+                    <div class="text-5xl my-2">🚌</div>
+                    <h4 class="font-bold text-gray-800 text-base">環保講座怎麼去？</h4>
+                    <p class="text-xs text-gray-500 leading-snug mt-1">阿志需要前往 15 公里外的市中心參加環保講座。哪一種交通模式碳排放最低？</p>
+                </div>
+                <div class="w-full flex flex-col gap-2 mt-2" id="transport-box">
+                    <button onclick="chooseTransport('car')" class="w-full bg-red-50 hover:bg-red-100 border border-red-200 text-red-800 text-xs py-2 px-3 rounded-xl transition font-medium">
+                        🚗 獨自開汽油車 (高碳排)
+                    </button>
+                    <button onclick="chooseTransport('carpool')" class="w-full bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 text-xs py-2 px-3 rounded-xl transition font-medium">
+                        🚗👥 與朋友共乘 (分攤碳排)
+                    </button>
+                    <button onclick="chooseTransport('transit')" class="w-full bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 text-xs py-2 px-3 rounded-xl transition font-medium">
+                        🚇 搭乘捷運/公車大眾運輸 (極佳!)
+                    </button>
+                </div>
+            `;
+            container.appendChild(transportCard);
+
+            window.chooseTransport = (choice) => {
+                const box = document.getElementById('transport-box');
+                if (choice === 'transit') {
+                    box.innerHTML = `<span class="text-xs font-bold text-emerald-600">✔️ 選擇大眾運輸！省錢、不塞車、又環保！</span>`;
+                    addReward(25, 20.0);
+                    completeTask();
+                } else if (choice === 'carpool') {
+                    box.innerHTML = `<span class="text-xs font-bold text-amber-600">✔️ 共乘分攤。不過下次試試捷運會更省碳排喔！</span>`;
+                    addReward(12, 10.0);
+                    completeTask();
+                } else {
+                    playSound('error');
+                    showToast("獨自開汽油車人均排碳是捷運的十幾倍，試著選擇更永續的綠色通勤！", "💡");
+                }
+            };
+
+            // 2. 知識擴散與社群力量
+            const socialCard = document.createElement('div');
+            socialCard.className = "bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between items-center text-center gap-3 transition-all hover:shadow-md";
+            socialCard.innerHTML = `
+                <div>
+                    <div class="text-5xl my-2">📣</div>
+                    <h4 class="font-bold text-gray-800 text-base">講座後的永續傳播</h4>
+                    <p class="text-xs text-gray-500 leading-snug mt-1">聽完精彩的環境生態演講，阿志想要在生活中擴大這份社會影響力。他可以...</p>
+                </div>
+                <div class="w-full flex flex-col gap-2 mt-2" id="social-box">
+                    <button onclick="chooseSocial('observe')" class="w-full bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 text-xs py-2 px-3 rounded-xl transition font-medium">
+                        📸 社群分享自然觀察/減塑日常
+                    </button>
+                    <button onclick="chooseSocial('donate')" class="w-full bg-forest-50 hover:bg-forest-100 border border-forest-200 text-forest-800 text-xs py-2 px-3 rounded-xl transition font-medium">
+                        💵 捐款給環保倡議團體
+                    </button>
+                </div>
+            `;
+            container.appendChild(socialCard);
+
+            window.chooseSocial = (choice) => {
+                const box = document.getElementById('social-box');
+                if (choice === 'observe') {
+                    box.innerHTML = `<span class="text-xs font-bold text-emerald-600">✔️ 利用社群力量喚醒大眾環保熱情！(加分加倍)</span>`;
+                    addReward(25, 5.0);
+                    completeTask();
+                } else {
+                    box.innerHTML = `<span class="text-xs font-bold text-forest-700">✔️ 支持公益環保團體進行深度政策推動！</span>`;
+                    addReward(15, 2.0);
+                    completeTask();
+                }
+            };
+
+            // 3. 公民監督
+            const citizenCard = document.createElement('div');
+            citizenCard.className = "bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between items-center text-center gap-3 transition-all hover:shadow-md";
+            citizenCard.innerHTML = `
+                <div>
+                    <div class="text-5xl my-2">🏛️</div>
+                    <h4 class="font-bold text-gray-800 text-base">發揮公民監督力量</h4>
+                    <p class="text-xs text-gray-500 leading-snug mt-1">真正的綠色永續需要政策面支持。點擊下方政府官員角色，發揮您的公民監督權利！</p>
+                </div>
+                <div class="w-full mt-2" id="citizen-box">
+                    <button onclick="triggerSupervision()" class="w-full bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold py-2.5 px-3 rounded-xl transition shadow flex items-center justify-center gap-1">
+                        👨‍💼 督促官員落實綠能環保政見！
+                    </button>
+                </div>
+            `;
+            container.appendChild(citizenCard);
+
+            window.triggerSupervision = () => {
+                const box = document.getElementById('citizen-box');
+                box.innerHTML = `<div class="text-xs font-bold text-emerald-600 bg-emerald-50 p-3 rounded-xl border border-emerald-200">
+                    ✔️ 監督成功！提出『碳稅推動』與『綠能轉型』訴求，實現真正的淨零碳排願景。
+                </div>`;
+                addReward(30, 10.0);
+                completeTask();
+            };
+        }
+
+
+        /* ==========================================
+           結算畫面：阿志的綠色成績單
+           ========================================== */
+        function showFinalResults() {
+            // 隱藏背包欄，將主關卡區域擴大為結算排版
+            document.getElementById('backpack-sidebar').style.display = 'none';
+            const arena = document.getElementById('game-arena');
+            const parentSection = arena.parentElement;
+            parentSection.className = "lg:col-span-4 bg-white rounded-3xl shadow-xl border border-forest-100 overflow-hidden flex flex-col min-h-[580px]";
+
+            // 修改關卡標頭資訊
+            document.getElementById('badge-stage').textContent = "冒險結束 🎉";
+            document.getElementById('stage-title').textContent = "阿志的低碳生活．本日結算成果";
+            document.getElementById('stage-desc').textContent = "一天完美的綠能旅程結束了！來看看阿志在你的帶領下，創造了什麼樣的環保奇蹟！";
+
+            // 計算評價
+            let title = "";
+            let medal = "";
+            let colorClass = "";
+            let evaluationDesc = "";
+
+            if (carbonFootprint <= 30) {
+                title = "地球守護神 (極低碳大師)";
+                medal = "👑🏆🌱";
+                colorClass = "text-emerald-600";
+                evaluationDesc = "天啊！你成功將阿志的一日碳足跡壓低至不可思議的超低門檻！在食、衣、住、行、育、樂中皆落實完美的減碳與減塑。地球感謝有你！";
+            } else if (carbonFootprint <= 55) {
+                title = "低碳先鋒 (綠能生活家)";
+                medal = "🏅🌿";
+                colorClass = "text-forest-600";
+                evaluationDesc = "做得非常棒！阿志在你的帶領下養成了自備環保袋、支持在地食材與正確資源回收等優良習慣，碳足跡已遠低於一般人的平均水平！";
+            } else {
+                title = "環保新生代 (減碳小尖兵)";
+                medal = "🌟";
+                colorClass = "text-amber-600";
+                evaluationDesc = "你已邁出了寶貴的第一步！雖然部分交通或消費選擇仍有些許碳排，但只要在生活中多加善用環保裝備並認明永續標章，就能一天比一天更低碳喔！加油！";
+            }
+
+            arena.className = "p-8 flex-1 flex flex-col items-center justify-center bg-gradient-to-b from-white to-forest-50/40 text-center";
+            arena.innerHTML = `
+                <div class="max-w-2xl w-full flex flex-col items-center gap-6 animate-pop">
+                    
+                    <!-- 證書勳章 -->
+                    <div class="text-6xl">${medal}</div>
+                    
+                    <!-- 評級與稱號 -->
+                    <div>
+                        <span class="text-xs font-black uppercase tracking-widest text-forest-500 bg-forest-100 px-3 py-1 rounded-full">阿志的低碳成就證書</span>
+                        <h3 class="text-3xl font-black mt-2 ${colorClass}">${title}</h3>
+                    </div>
+
+                    <!-- 數據總覽 -->
+                    <div class="grid grid-cols-2 gap-4 w-full max-w-md my-2">
+                        <div class="bg-white p-4 rounded-2xl border border-forest-100 shadow-sm">
+                            <span class="text-3xl">⭐</span>
+                            <div class="text-xs text-gray-400 mt-1">累積綠能點數</div>
+                            <div class="text-2xl font-black text-yellow-500">${greenPoints} pts</div>
+                        </div>
+                        <div class="bg-white p-4 rounded-2xl border border-forest-100 shadow-sm">
+                            <span class="text-3xl">👣</span>
+                            <div class="text-xs text-gray-400 mt-1">殘留碳足跡</div>
+                            <div class="text-2xl font-black text-red-500">${carbonFootprint.toFixed(1)} kg</div>
+                        </div>
+                    </div>
+
+                    <!-- 評價小卡 -->
+                    <div class="bg-forest-50 rounded-2xl p-5 border border-forest-100 text-sm text-forest-900 leading-relaxed max-w-lg">
+                        <p>${evaluationDesc}</p>
+                    </div>
+
+                    <!-- 功能按鈕 -->
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <button onclick="shareResult()" class="bg-gradient-to-r from-emerald-500 to-forest-600 text-white font-black py-3 px-6 rounded-full shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2">
+                            <span>🔗</span> 複製並分享今日成就
+                        </button>
+                        <button onclick="window.location.reload()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 px-6 rounded-full transition-all flex items-center justify-center gap-2">
+                            <span>🔄</span> 再挑戰一次
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // 清除底部按鈕區
+            const footerProgress = document.getElementById('stage-progress-txt');
+            if (footerProgress) footerProgress.parentElement.remove();
+        }
+
+        // 複製分享成果
+        function shareResult() {
+            const shareText = `【阿志的低碳生活】🌱 冒險挑戰成功！
+我今天帶領阿志在各關卡完成環保任務：
+⭐ 獲得綠能點數：${greenPoints} pts
+👣 最終碳足跡降到：${carbonFootprint.toFixed(1)} kg！
+榮獲綠色認證證書：${carbonFootprint <= 30 ? "地球守護神 (極低碳大師)" : (carbonFootprint <= 55 ? "低碳先鋒" : "減碳小尖兵")} 🏆
+你也快來挑戰在一天內將碳排減到最低吧！`;
+
+            // 使用 document.execCommand 確保在 Canvas 內嵌 iframe 的相容性
+            const dummy = document.createElement("textarea");
+            document.body.appendChild(dummy);
+            dummy.value = shareText;
+            dummy.select();
+            document.execCommand("copy");
+            document.body.removeChild(dummy);
+
+            showToast("成果報告已複製到剪貼簿，快分享給身邊的朋友吧！", "📋");
+        }
+    </script>
+</body>
+</html>
