@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>綠色生活・減塑與環保知識大挑戰</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+    }
+    .custom-shadow {
+      box-shadow: 0 10px 30px -5px rgba(16, 185, 129, 0.1), 0 4px 6px -2px rgba(16, 185, 129, 0.05);
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-emerald-50 via-teal-50 to-emerald-100 min-h-screen text-slate-800 flex flex-col justify-between">
+
+  <!-- 頂部導航欄/裝飾 -->
+  <header class="w-full py-4 px-6 bg-white/80 backdrop-blur-md border-b border-emerald-100 sticky top-0 z-50">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <!-- 綠葉 SVG 圖標 -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707.707M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2" />
+        </svg>
+        <span class="text-xl font-bold bg-gradient-to-r from-emerald-700 to-teal-600 bg-clip-text text-transparent">綠色生活・知識測驗</span>
+      </div>
+      <div id="sound-control" class="flex items-center space-x-2 bg-emerald-100/50 px-3 py-1.5 rounded-full cursor-pointer hover:bg-emerald-100 transition">
+        <span id="sound-icon" class="text-emerald-700">🔊</span>
+        <span id="sound-status" class="text-xs font-semibold text-emerald-800">音效已開啟</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主體內容 -->
+  <main class="flex-grow max-w-4xl w-full mx-auto p-4 md:p-8 flex flex-col justify-center">
+    
+    <!-- 1. 開始介紹頁面 -->
+    <div id="intro-card" class="bg-white rounded-3xl p-6 md:p-10 custom-shadow border border-emerald-50 transition-all duration-500 transform hover:scale-[1.01]">
+      <div class="text-center">
+        <span class="inline-block bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider mb-4">Eco-Friendly Quiz</span>
+        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-800 mb-4 leading-tight">
+          綠色生活：<span class="text-emerald-600">減塑與環保知識大挑戰</span>
+        </h1>
+        <p class="text-slate-600 text-base md:text-lg mb-8 max-w-2xl mx-auto leading-relaxed">
+          歡迎來到這場充滿綠意與智慧的測驗！地球正面臨著嚴峻的塑膠污染與環境考驗。透過這 10 題改編自「地球 55 項行動」與減塑核心思維的精選測驗，一同檢視您的綠色生活指數。每題 10 分，答對會有精美 chime 音效、答錯也附有完整解析！快來挑戰，看看您能否獲得綠色衛士的稱號吧！
+        </p>
+        
+        <!-- 卡片裝飾：三大特點 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 text-left">
+          <div class="p-4 bg-emerald-50/50 rounded-2xl border border-emerald-100/50 flex items-start space-x-3">
+            <span class="text-2xl">🌱</span>
+            <div>
+              <h3 class="font-bold text-emerald-800 text-sm">減塑新知</h3>
+              <p class="text-xs text-slate-500 mt-1">認識日常拋棄式塑膠與環保替代方案。</p>
+            </div>
+          </div>
+          <div class="p-4 bg-emerald-50/50 rounded-2xl border border-emerald-100/50 flex items-start space-x-3">
+            <span class="text-2xl">📉</span>
+            <div>
+              <h3 class="font-bold text-emerald-800 text-sm">節能減碳</h3>
+              <p class="text-xs text-slate-500 mt-1">了解數位生活、居家節能與旅遊節約力。</p>
+            </div>
+          </div>
+          <div class="p-4 bg-emerald-50/50 rounded-2xl border border-emerald-100/50 flex items-start space-x-3">
+            <span class="text-2xl">💡</span>
+            <div>
+              <h3 class="font-bold text-emerald-800 text-sm">觀念重塑</h3>
+              <p class="text-xs text-slate-500 mt-1">測驗結束後自動整理弱點，加強環保概念！</p>
+            </div>
+          </div>
+        </div>
+
+        <button id="btn-start" class="w-full md:w-auto px-10 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-lg rounded-full shadow-lg shadow-emerald-600/30 transition-all duration-300 transform hover:-translate-y-1 focus:ring-4 focus:ring-emerald-200">
+          立即開始挑戰 🚀
+        </button>
+      </div>
+    </div>
+
+    <!-- 2. 測驗進行頁面 -->
+    <div id="quiz-card" class="hidden bg-white rounded-3xl p-6 md:p-8 custom-shadow border border-emerald-50">
+      
+      <!-- 進度條與狀態 -->
+      <div class="mb-6">
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-sm font-semibold text-emerald-700">挑戰進度：<span id="current-question-index">1</span> / 10 題</span>
+          <span class="text-sm font-bold text-slate-500">目前分數: <span id="current-score" class="text-emerald-600">0</span> 分</span>
+        </div>
+        <div class="w-full bg-slate-100 rounded-full h-3">
+          <div id="progress-bar" class="bg-gradient-to-r from-emerald-500 to-teal-500 h-3 rounded-full transition-all duration-500" style="width: 10%;"></div>
+        </div>
+      </div>
+
+      <!-- 題目敘述區 -->
+      <div class="mb-6">
+        <span class="inline-block bg-teal-100 text-teal-800 text-xs font-bold px-2.5 py-1 rounded-full mb-2">Q<span id="question-num">1</span>. 選擇題</span>
+        <h2 id="question-text" class="text-xl md:text-2xl font-bold text-slate-800 leading-snug">
+          載入中...
+        </h2>
+      </div>
+
+      <!-- 選項按鈕區 -->
+      <div class="space-y-3" id="options-container">
+        <!-- 動態產生選項 -->
+      </div>
+
+      <!-- 解析與回饋區 (預設隱藏) -->
+      <div id="feedback-panel" class="hidden mt-6 p-5 rounded-2xl border-2 transition-all duration-300">
+        <div class="flex items-center space-x-3 mb-2">
+          <span id="feedback-icon" class="text-2xl"></span>
+          <span id="feedback-title" class="font-bold text-lg"></span>
+        </div>
+        <div class="text-slate-700 text-sm md:text-base leading-relaxed bg-white/60 p-4 rounded-xl border border-slate-100">
+          <strong class="text-slate-800 block mb-1">💡 綠色詳解：</strong>
+          <span id="explanation-text"></span>
+        </div>
+      </div>
+
+      <!-- 下一步按鈕 -->
+      <div class="mt-6 flex justify-end">
+        <button id="btn-next" class="hidden px-8 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition-all shadow-md shadow-emerald-600/20 items-center space-x-2">
+          <span>下一題</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+          </svg>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- 3. 測驗結果與錯誤概念總整理頁面 -->
+    <div id="result-card" class="hidden bg-white rounded-3xl p-6 md:p-10 custom-shadow border border-emerald-50">
+      <div class="text-center mb-8">
+        <span class="text-5xl" id="result-emoji">🎉</span>
+        <h2 class="text-3xl font-extrabold text-slate-800 mt-4">測驗完成！</h2>
+        <p class="text-slate-500 mt-2">感謝您一同關注地球與減塑生活！</p>
+        
+        <!-- 分數顯示環 -->
+        <div class="inline-block mt-6 relative">
+          <div class="w-36 h-36 rounded-full border-8 border-slate-100 flex flex-col justify-center items-center">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">您的得分</span>
+            <span class="text-4xl font-black text-emerald-600" id="final-score">0</span>
+            <span class="text-xs font-semibold text-slate-500">/ 100 分</span>
+          </div>
+        </div>
+        
+        <!-- 評價稱號 -->
+        <p class="text-lg font-bold text-slate-700 mt-4" id="score-evaluation"></p>
+      </div>
+
+      <!-- 錯誤概念加強區 (將於 JS 動態寫入) -->
+      <div id="wrong-review-section" class="border-t border-slate-100 pt-6">
+        <div class="flex items-center space-x-2 mb-4">
+          <span class="text-2xl">🌱</span>
+          <h3 class="text-xl font-bold text-emerald-800">綠色觀念補強站</h3>
+        </div>
+        <p class="text-slate-600 text-sm mb-4">針對您本次答錯的觀念，我們為您重新統整了核心重點，幫助您在生活中輕鬆實踐環保：</p>
+        
+        <div class="space-y-4" id="wrong-reviews-container">
+          <!-- 錯誤題目的概念會動態出現在這 -->
+        </div>
+      </div>
+
+      <!-- 按鈕區 -->
+      <div class="mt-8 flex flex-col sm:flex-row justify-center gap-4">
+        <button id="btn-restart" class="px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/20 transition-all text-center">
+          重新挑戰一次 🔄
+        </button>
+        <button id="btn-share" class="px-8 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-all text-center">
+          複製成績分享給好友 🔗
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- 底部版權 -->
+  <footer class="w-full py-6 text-center text-xs text-emerald-800/60 font-semibold bg-emerald-50/50 mt-8 border-t border-emerald-100/40">
+    <div class="max-w-4xl mx-auto px-4">
+      <p>綠色生活，從日常減塑與細微節能開始。愛護地球，我們一起行動！</p>
+      <p class="mt-1">© 2026 減塑與環保知識推廣小組 & 綠色未來</p>
+    </div>
+  </footer>
+
+  <!-- 自訂 Toast 提示框 (用於複製成績時) -->
+  <div id="toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white text-sm px-6 py-3 rounded-full shadow-xl opacity-0 transition-opacity duration-300 pointer-events-none z-50 flex items-center space-x-2">
+    <span>📋</span>
+    <span id="toast-text">複製成功</span>
+  </div>
+
+  <script>
+    // 1. 測驗題目資料
+    const quizData = [
+      {
+        id: 1,
+        question: "每年的「世界地球日」是在哪一天？",
+        options: [
+          { key: "A", text: "3 月 12 日" },
+          { key: "B", text: "4 月 22 日" },
+          { key: "C", text: "6 月 5 日" },
+          { key: "D", text: "10 月 24 日" }
+        ],
+        answer: "B",
+        explanation: "根據影片內容，4 月 22 日是世界地球日，每年的地球日都會有不同的主題。",
+        concept: "世界地球日 (Earth Day)",
+        conceptReview: "<strong>世界地球日是每年的 4 月 22 日！</strong>這是一項世界性的環境保護活動。每年這一天，全球各地都會圍繞特定的「環保主題」發起各種綠色倡議與實際行動，提醒我們時刻關注與保護地球資源。"
+      },
+      {
+        id: 2,
+        question: "阿滴提到的「拋棄式塑膠（Disposable plastics）」是指下列哪一種物品？",
+        options: [
+          { key: "A", text: "可以重複使用多次的塑膠容器" },
+          { key: "B", text: "工業用的超大型塑膠材料" },
+          { key: "C", text: "僅使用一次就被丟棄的塑膠瓶、餐具或包裝紙" },
+          { key: "D", text: "可在自然環境中快速分解的生物塑膠" }
+        ],
+        answer: "C",
+        explanation: "拋棄式塑膠是指那些只被使用一次就丟掉的產品，如飲料瓶、塑膠餐具或包裝紙，它們難以分解並會造成環境污染。",
+        concept: "拋棄式塑膠 (Disposable plastics) 的危害",
+        conceptReview: "<strong>「一次性/拋棄式塑膠」是環境的頭號殺手！</strong>例如塑膠吸管、外送餐具、飲料杯、包裝薄膜等。這類物品往往只被使用幾分鐘，卻需要花費數百年才能在自然中碎化（且不會完全消失，會變成微塑膠）。日常中應積極「源頭減塑」，自備環保袋與餐具！"
+      },
+      {
+        id: 3,
+        question: "根據影片，台灣目前的資源回收率約為多少，與德國等回收領先國家並列？",
+        options: [
+          { key: "A", text: "20% 以上" },
+          { key: "B", text: "40% 以上" },
+          { key: "C", text: "50% 以上" },
+          { key: "D", text: "70% 以上" }
+        ],
+        answer: "C",
+        explanation: "台灣目前回收超過 50% 的垃圾，回收成效優異，足以與德國等回收領導者並駕齊驅。",
+        concept: "台灣的卓越資源回收率",
+        conceptReview: "<strong>台灣目前的資源回收率已達到 50% 以上！</strong>這項成果在國際上名列前茅，可與德國等先進回收國家並駕齊驅。這是全體國民長年落實垃圾分類、垃圾不落地、以及環保意識抬頭的共同驕傲。"
+      },
+      {
+        id: 4,
+        question: "進行資源回收時，下列哪一組分類符合阿滴在影片中示範的正確類別？",
+        options: [
+          { key: "A", text: "紙類、金屬、玻璃、一般垃圾" },
+          { key: "B", text: "紙類、塑膠瓶、鋁罐、玻璃、塑膠、電池" },
+          { key: "C", text: "乾垃圾、濕垃圾、有害垃圾、可回收物" },
+          { key: "D", text: "塑膠袋、保麗龍、廚餘、廢鐵" }
+        ],
+        answer: "B",
+        explanation: "影片中提到的資源回收正確分類包含：紙類、塑膠瓶、鋁罐、玻璃、塑膠以及電池。",
+        concept: "正確的資源分類方式",
+        conceptReview: "<strong>資源回收要分對，後續利用才乾淨！</strong>正確的基本分類包含：紙類、塑膠瓶、鋁罐（金屬）、玻璃、塑膠、以及高危害性的電池。落實精準分類，才能提高再生料的純度與回收率，減少第一線清潔人員的負擔。"
+      },
+      {
+        id: 5,
+        question: "如果你想跟阿滴一樣減少塑膠浪費並享用「珍珠奶茶（Boba）」，你應該攜帶什麼樣的裝備？",
+        options: [
+          { key: "A", text: "塑膠吸管" },
+          { key: "B", text: "細的金屬吸管" },
+          { key: "C", text: "粗的金屬吸管" },
+          { key: "D", text: "紙吸管" }
+        ],
+        answer: "C",
+        explanation: "阿滴建議隨身攜帶金屬吸管，並特別提到有一支「較粗的吸管」是用來喝他最愛的珍珠奶茶。",
+        concept: "個人日常減塑配備",
+        conceptReview: "<strong>喝有料飲料（如珍奶）必備「粗版環保吸管」！</strong>不論是金屬、玻璃、矽膠還是竹製材質，自備粗吸管不僅能避免一次性塑膠吸管的浪費，還能確保隨時順暢享用珍珠、椰果等美味配料。養成隨身攜帶的習慣，就是最直接的減塑行動。"
+      },
+      {
+        id: 6,
+        question: "畜牧業（養殖動物）所產生的溫室氣體排放量佔全球總量的百分之幾？",
+        options: [
+          { key: "A", text: "5%" },
+          { key: "B", text: "10%" },
+          { key: "C", text: "18%" },
+          { key: "D", text: "35%" }
+        ],
+        answer: "C",
+        explanation: "飼養動物需要消耗大量資源，且其排放的溫室氣體佔全球總排放量的 18%。",
+        concept: "畜牧業與溫室氣體排放",
+        conceptReview: "<strong>畜牧業排放的溫室氣體佔了全球高達 18%！</strong>飼養反芻動物（如牛、羊）會釋放大量的甲烷（一種溫室效應極強的氣體），且生產肉類需消耗龐大的水、飼料與土地資源。倡導「少肉多素」或發起「週一無肉日」，是每個人最簡單能參與的低碳飲食法。"
+      },
+      {
+        id: 7,
+        question: "根據「地球 55 項行動」，下列哪一項行動屬於數位生活中的「減碳力」？",
+        options: [
+          { key: "A", text: "購買最新的智慧型手機" },
+          { key: "B", text: "退訂不需要的電子報" },
+          { key: "C", text: "每天拍攝風景照片分享" },
+          { key: "D", text: "下載更多影音串流 APP" }
+        ],
+        answer: "B",
+        explanation: "退訂不需要的電子報可以減少數位資料存儲與傳輸所產生的碳排放。",
+        concept: "數位生活減碳 (Digital Carbon Footprint)",
+        conceptReview: "<strong>退訂沒在看的電子報，也是默默在減碳！</strong>每一次電子郵件的收發、存儲在雲端伺服器，都會持續消耗龐大的電力與機房散熱資源。清理過期信件、退訂廣告信、減少非必要的雲端備份，是現代每位網民必備的「數位低碳素養」。"
+      },
+      {
+        id: 8,
+        question: "為了達到居家節能的效果，冰箱內的食物應該維持在幾分滿最合適？",
+        options: [
+          { key: "A", text: "5 分滿" },
+          { key: "B", text: "8 分滿" },
+          { key: "C", text: "9 分滿" },
+          { key: "D", text: "10 分全滿" }
+        ],
+        answer: "B",
+        explanation: "冰箱維持 8 分滿，可以讓內部冷空氣有效循環，達到節能目的。",
+        concept: "居家節能：冰箱八分滿原則",
+        conceptReview: "<strong>冰箱維持「八分滿」最節能省電！</strong>冰箱內部需要足夠的通道讓冷空氣流動與循環。塞得太滿（如九分、十分滿）會嚴重阻礙冷氣循環，迫使壓縮機持續全力運轉，造成大量電力浪費，也容易導致食物保存效果變差。"
+      },
+      {
+        id: 9,
+        question: "關於減少廢棄物的原則，當鞋包或電器損壞時，應該優先採取什麼行動？",
+        options: [
+          { key: "A", text: "趁機購買最新款式的產品" },
+          { key: "B", text: "丟棄並換新的，因為維修很麻煩" },
+          { key: "C", text: "採取「維修舊物，壞了才丟」的原則" },
+          { key: "D", text: "隨便找個空地棄置" }
+        ],
+        answer: "C",
+        explanation: "海報建議應「維修舊物、鞋包、電器」，採取壞了才丟的原則以減少資源浪費。",
+        concept: "維修代替購買的綠色消費",
+        conceptReview: "<strong>養成「維修舊物、壞了才丟」的高尚美德！</strong>在大量生產、刺激消費的現代社會，物品損壞時常被直接扔掉換新。然而，每次製造與運送新物品都會消耗地球資源並產生碳排。嘗試修復舊鞋、舊包與小家電，能大幅延長物品壽命，也是對工藝的尊重與對地球的溫柔。"
+      },
+      {
+        id: 10,
+        question: "在外旅遊時，下列哪一種做法最符合「節約力」的環保精神？",
+        options: [
+          { key: "A", text: "每天要求旅館更換乾淨的床單" },
+          { key: "B", text: "盡情使用旅館提供的一次性牙刷與洗髮精" },
+          { key: "C", text: "續住旅館時不更換床單" },
+          { key: "D", text: "離開房間時不關燈以維持室內亮度" }
+        ],
+        answer: "C",
+        explanation: "續住旅館不換床單可以節省大量水資源與清潔劑，是旅遊時實踐節約的一種方式。",
+        concept: "綠色旅遊與低碳續住",
+        conceptReview: "<strong>出門在外旅遊，續住時「不更換床單」是優質綠色習慣！</strong>床單與毛巾每洗一次，都會消耗大量的水資源、高污染的化學洗劑、以及烘乾所需的電力。自備牙刷梳子等個人盥洗用品，並且在續住時重複使用床單毛巾，能讓您的旅程變得乾淨又低碳。"
+      }
+    ];
+
+    // 2. 音效生成器 (使用 Web Audio API)
+    let isSoundOn = true;
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new AudioContextClass();
+      }
+    }
+
+    // 播放答對音效：清脆悅耳的和弦
+    function playCorrectSound() {
+      if (!isSoundOn) return;
+      initAudio();
+      const now = audioCtx.currentTime;
+      
+      // 第一個音 (E5)
+      playTone(659.25, "sine", now, 0.15, 0.1);
+      // 第二個音 (G5)，比第一個音稍晚起音，形成和諧的和弦上升感
+      playTone(783.99, "sine", now + 0.1, 0.3, 0.1);
+    }
+
+    // 播放答錯音效：低沉稍微不和諧的提示音
+    function playWrongSound() {
+      if (!isSoundOn) return;
+      initAudio();
+      const now = audioCtx.currentTime;
+      
+      // 不和諧的雙音 (模擬低沉蜂鳴)
+      playTone(150, "triangle", now, 0.25, 0.15);
+      playTone(147, "triangle", now, 0.25, 0.15);
+    }
+
+    // 通用單音生成器
+    function playTone(freq, type, startTime, duration, startVol) {
+      const osc = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, startTime);
+      
+      gainNode.gain.setValueAtTime(startVol, startTime);
+      // 淡出效果，防止雜音
+      gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+      
+      osc.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      
+      osc.start(startTime);
+      osc.stop(startTime + duration);
+    }
+
+    // 3. 測驗狀態與邏輯
+    let currentIdx = 0;
+    let score = 0;
+    let userAnswers = []; // 儲存使用者的作答紀錄 { qId: x, selected: 'A', isCorrect: true/false }
+    let hasAnsweredCurrent = false;
+
+    // 取得 DOM 元素
+    const introCard = document.getElementById("intro-card");
+    const quizCard = document.getElementById("quiz-card");
+    const resultCard = document.getElementById("result-card");
+    
+    const btnStart = document.getElementById("btn-start");
+    const btnNext = document.getElementById("btn-next");
+    const btnRestart = document.getElementById("btn-restart");
+    const btnShare = document.getElementById("btn-share");
+    
+    const soundControl = document.getElementById("sound-control");
+    const soundIcon = document.getElementById("sound-icon");
+    const soundStatus = document.getElementById("sound-status");
+
+    // 聲音開關控制
+    soundControl.addEventListener("click", () => {
+      isSoundOn = !isSoundOn;
+      if (isSoundOn) {
+        soundIcon.innerText = "🔊";
+        soundStatus.innerText = "音效已開啟";
+        // 測試播放一個超短音確保啟動
+        try { initAudio(); playTone(440, "sine", audioCtx.currentTime, 0.05, 0.05); } catch(e){}
+      } else {
+        soundIcon.innerText = "🔇";
+        soundStatus.innerText = "音效已關閉";
+      }
+    });
+
+    // 開始挑戰
+    btnStart.addEventListener("click", () => {
+      try { initAudio(); } catch(e){}
+      introCard.classList.add("hidden");
+      quizCard.classList.remove("hidden");
+      loadQuestion(0);
+    });
+
+    // 載入題目
+    function loadQuestion(index) {
+      hasAnsweredCurrent = false;
+      const q = quizData[index];
+      
+      // 更新標題、題號
+      document.getElementById("current-question-index").innerText = index + 1;
+      document.getElementById("question-num").innerText = index + 1;
+      document.getElementById("question-text").innerText = q.question;
+      
+      // 更新進度條
+      const progressPercent = ((index + 1) / quizData.length) * 100;
+      document.getElementById("progress-bar").style.width = `${progressPercent}%`;
+      
+      // 清空與渲染選項
+      const optionsContainer = document.getElementById("options-container");
+      optionsContainer.innerHTML = "";
+      
+      q.options.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.className = "w-full text-left p-4 rounded-2xl border-2 border-slate-100 hover:border-emerald-300 hover:bg-emerald-50/30 transition-all duration-200 flex items-center space-x-3 group";
+        btn.dataset.key = opt.key;
+        
+        btn.innerHTML = `
+          <span class="flex-shrink-0 w-8 h-8 rounded-full bg-slate-100 group-hover:bg-emerald-100 text-slate-600 group-hover:text-emerald-800 font-bold flex items-center justify-center transition-all duration-200">${opt.key}</span>
+          <span class="text-slate-700 font-medium text-sm md:text-base">${opt.text}</span>
+        `;
+        
+        btn.addEventListener("click", () => selectOption(opt.key, btn));
+        optionsContainer.appendChild(btn);
+      });
+
+      // 隱藏解析與下一步
+      document.getElementById("feedback-panel").classList.add("hidden");
+      btnNext.classList.add("hidden");
+    }
+
+    // 選擇選項後的回饋
+    function selectOption(selectedKey, selectedBtn) {
+      if (hasAnsweredCurrent) return; // 防止重複點選
+      hasAnsweredCurrent = true;
+
+      const q = quizData[currentIdx];
+      const isCorrect = (selectedKey === q.answer);
+      
+      // 紀錄回答
+      userAnswers.push({
+        qId: q.id,
+        selected: selectedKey,
+        isCorrect: isCorrect
+      });
+
+      // 播放音效
+      if (isCorrect) {
+        score += 10;
+        document.getElementById("current-score").innerText = score;
+        playCorrectSound();
+      } else {
+        playWrongSound();
+      }
+
+      // 渲染選項按鈕的外觀變化
+      const optionsContainer = document.getElementById("options-container");
+      const buttons = optionsContainer.querySelectorAll("button");
+      
+      buttons.forEach(btn => {
+        const key = btn.dataset.key;
+        btn.classList.remove("hover:border-emerald-300", "hover:bg-emerald-50/30");
+        
+        const circle = btn.querySelector("span:first-child");
+        
+        if (key === q.answer) {
+          // 正確答案標示為綠色
+          btn.className = "w-full text-left p-4 rounded-2xl border-2 border-emerald-500 bg-emerald-50/50 flex items-center space-x-3";
+          circle.className = "flex-shrink-0 w-8 h-8 rounded-full bg-emerald-500 text-white font-bold flex items-center justify-center";
+        } else if (key === selectedKey && !isCorrect) {
+          // 選錯的答案標示為紅色
+          btn.className = "w-full text-left p-4 rounded-2xl border-2 border-rose-500 bg-rose-50/50 flex items-center space-x-3";
+          circle.className = "flex-shrink-0 w-8 h-8 rounded-full bg-rose-500 text-white font-bold flex items-center justify-center";
+        } else {
+          // 其餘未選中且非正確答案的變淡
+          btn.className = "w-full text-left p-4 rounded-2xl border border-slate-100 opacity-50 flex items-center space-x-3 cursor-not-allowed";
+        }
+      });
+
+      // 展開解析面板
+      const feedbackPanel = document.getElementById("feedback-panel");
+      const feedbackIcon = document.getElementById("feedback-icon");
+      const feedbackTitle = document.getElementById("feedback-title");
+      const explanationText = document.getElementById("explanation-text");
+
+      feedbackPanel.classList.remove("hidden");
+      explanationText.innerText = q.explanation;
+
+      if (isCorrect) {
+        feedbackPanel.className = "mt-6 p-5 rounded-2xl border-2 border-emerald-500 bg-emerald-50/40 transition-all duration-300";
+        feedbackIcon.innerText = "🎉";
+        feedbackTitle.className = "font-bold text-lg text-emerald-800";
+        feedbackTitle.innerText = "恭喜答對！+10分";
+      } else {
+        feedbackPanel.className = "mt-6 p-5 rounded-2xl border-2 border-rose-400 bg-rose-50/40 transition-all duration-300";
+        feedbackIcon.innerText = "❌";
+        feedbackTitle.className = "font-bold text-lg text-rose-800";
+        feedbackTitle.innerText = `答錯囉！正確答案是 (${q.answer})`;
+      }
+
+      // 秀出下一步按鈕
+      btnNext.classList.remove("hidden");
+      btnNext.classList.add("flex");
+      
+      // 如果是最後一題，改按鈕文字為「查看測驗結果」
+      if (currentIdx === quizData.length - 1) {
+        btnNext.querySelector("span").innerText = "查看測驗結果";
+      } else {
+        btnNext.querySelector("span").innerText = "下一題";
+      }
+    }
+
+    // 下一題點擊事件
+    btnNext.addEventListener("click", () => {
+      if (currentIdx < quizData.length - 1) {
+        currentIdx++;
+        loadQuestion(currentIdx);
+      } else {
+        showResults();
+      }
+    });
+
+    // 4. 結算畫面與錯誤概念加強
+    function showResults() {
+      quizCard.classList.add("hidden");
+      resultCard.classList.remove("hidden");
+      
+      // 設定分數
+      document.getElementById("final-score").innerText = score;
+      
+      // 設定評價與表情
+      const resultEmoji = document.getElementById("result-emoji");
+      const scoreEval = document.getElementById("score-evaluation");
+      
+      if (score === 100) {
+        resultEmoji.innerText = "🏆";
+        scoreEval.className = "text-xl font-bold text-emerald-700 mt-4";
+        scoreEval.innerText = "滿分！您是無懈可擊的『終極綠色衛士』！";
+      } else if (score >= 80) {
+        resultEmoji.innerText = "🌟";
+        scoreEval.className = "text-xl font-bold text-teal-700 mt-4";
+        scoreEval.innerText = "太棒了！您是具備優良素養的『環保急先鋒』！";
+      } else if (score >= 60) {
+        resultEmoji.innerText = "☘️";
+        scoreEval.className = "text-xl font-bold text-amber-700 mt-4";
+        scoreEval.innerText = "及格！您是正在實踐綠色生活的『環保實踐家』！";
+      } else {
+        resultEmoji.innerText = "💡";
+        scoreEval.className = "text-xl font-bold text-slate-700 mt-4";
+        scoreEval.innerText = "再接再厲！建議詳讀下方的『綠色觀念補強站』！";
+      }
+
+      // 動態組裝「錯誤觀念加強區」
+      const wrongContainer = document.getElementById("wrong-reviews-container");
+      const wrongReviewSection = document.getElementById("wrong-review-section");
+      wrongContainer.innerHTML = "";
+
+      const wrongAnswers = userAnswers.filter(ans => !ans.isCorrect);
+
+      if (wrongAnswers.length === 0) {
+        // 沒有錯題
+        wrongReviewSection.classList.add("hidden");
+      } else {
+        wrongReviewSection.classList.remove("hidden");
+        
+        wrongAnswers.forEach(wrongAns => {
+          const matchedQ = quizData.find(q => q.id === wrongAns.qId);
+          
+          const div = document.createElement("div");
+          div.className = "p-5 bg-amber-50/60 border border-amber-200 rounded-2xl flex items-start space-x-3";
+          
+          div.innerHTML = `
+            <div class="flex-shrink-0 mt-1">
+              <span class="inline-block px-2 py-0.5 text-xs font-bold bg-amber-200 text-amber-900 rounded-lg">第 ${matchedQ.id} 題觀念</span>
+            </div>
+            <div>
+              <h4 class="font-bold text-amber-900 text-base mb-1">【${matchedQ.concept}】</h4>
+              <p class="text-slate-700 text-sm leading-relaxed">${matchedQ.conceptReview}</p>
+            </div>
+          `;
+          wrongContainer.appendChild(div);
+        });
+      }
+    }
+
+    // 重新挑戰
+    btnRestart.addEventListener("click", () => {
+      currentIdx = 0;
+      score = 0;
+      userAnswers = [];
+      document.getElementById("current-score").innerText = "0";
+      resultCard.classList.add("hidden");
+      quizCard.classList.remove("hidden");
+      loadQuestion(0);
+    });
+
+    // 複製成績分享
+    btnShare.addEventListener("click", () => {
+      let medal = "💡";
+      if (score === 100) medal = "🏆";
+      else if (score >= 80) medal = "🌟";
+      else if (score >= 60) medal = "☘️";
+      
+      const shareText = `🌲 綠色生活：減塑與環保知識大挑戰 🌲\n\n我剛完成測驗，得到了 【${score} 分】！\n榮獲稱號：${document.getElementById("score-evaluation").innerText}\n\n自備環保餐具、落實資源分類、支持綠色消費！你也一起來測驗，看看能拿幾分吧！`;
+      
+      // 相容 iframe 等特殊環境的複製
+      const tempTextArea = document.createElement("textarea");
+      tempTextArea.value = shareText;
+      document.body.appendChild(tempTextArea);
+      tempTextArea.select();
+      
+      try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+          showToast("成績及宣導語已複製到剪貼簿，快分享給朋友吧！✨");
+        } else {
+          showToast("複製失敗，請手動複製網址。");
+        }
+      } catch (err) {
+        showToast("複製失敗，請手動複製網址。");
+      }
+      
+      document.body.removeChild(tempTextArea);
+    });
+
+    // 自訂 Toast 提示
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      const toastText = document.getElementById("toast-text");
+      toastText.innerText = message;
+      
+      toast.classList.remove("opacity-0");
+      toast.classList.add("opacity-100");
+      
+      setTimeout(() => {
+        toast.classList.remove("opacity-100");
+        toast.classList.add("opacity-0");
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
